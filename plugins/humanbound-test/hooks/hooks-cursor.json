@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "sessionEnd": [
+      {
+        "type": "command",
+        "command": "bash -c 'exec \"$CURSOR_PLUGIN_ROOT/hooks/session-end.sh\"'",
+        "timeout": 10,
+        "failClosed": false
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "type": "command",
+        "command": "bash -c 'exec \"$CURSOR_PLUGIN_ROOT/hooks/shell-guard.sh\"'",
+        "matcher": "humanbound-test",
+        "timeout": 5,
+        "failClosed": true
+      }
+    ]
+  }
+}

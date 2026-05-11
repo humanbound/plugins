@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "humanbound": {
+      "command": "bash",
+      "args": ["-c", "exec \"$HB_PLUGIN_ROOT/scripts/start-mcp.sh\""],
+      "env": {
+        "HB_PLUGIN_ROOT": "${CURSOR_PLUGIN_ROOT}"
+      }
+    }
+  }
+}

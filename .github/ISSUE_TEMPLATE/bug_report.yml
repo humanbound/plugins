@@ -1,0 +1,79 @@
+name: Bug report
+description: Something is broken or unexpected
+title: "bug: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. **Security issues must not be reported here** —
+        see [SECURITY.md](https://github.com/humanbound/plugins/blob/main/SECURITY.md)
+        for the private disclosure channel.
+
+  - type: dropdown
+    id: plugin
+    attributes:
+      label: Which plugin?
+      options:
+        - humanbound-test
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: From `.claude-plugin/plugin.json` or `.cursor-plugin/plugin.json`
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: host
+    attributes:
+      label: Host
+      options:
+        - Claude Code
+        - Cursor
+        - Both
+    validations:
+      required: true
+
+  - type: input
+    id: host-version
+    attributes:
+      label: Host version
+      placeholder: "Claude Code 2.x / Cursor 2.5.x"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 14.5 / Ubuntu 22.04 / etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Exact slash command invocation or commands run.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or output
+      render: shell

@@ -1,0 +1,7 @@
+{
+  "name": "humanbound-plugins",
+  "owner": { "name": "humanbound" },
+  "plugins": [
+    { "name": "humanbound-test", "source": "./plugins/humanbound-test" }
+  ]
+}

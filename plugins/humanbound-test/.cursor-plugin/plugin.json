@@ -1,0 +1,15 @@
+{
+  "name": "humanbound-test",
+  "displayName": "Humanbound Test",
+  "version": "0.1.0",
+  "description": "Adversarial / security testing for local AI agents — auto-detects the FastAPI server, you author bot-config.json with endpoints / auth / payload, exposes via ngrok, dispatches via the Humanbound MCP, renders findings.",
+  "author": { "name": "humanbound" },
+  "homepage": "https://github.com/humanbound/plugins",
+  "repository": "https://github.com/humanbound/plugins",
+  "license": "Apache-2.0",
+  "keywords": ["adversarial", "security", "red-team", "ai-security", "agent-security", "prompt-injection", "pentest", "humanbound", "mcp", "ngrok"],
+  "logo": "./assets/logo.svg",
+  "skills":   "./skills/",
+  "commands": "./commands/",
+  "hooks":    "./hooks/hooks-cursor.json"
+}

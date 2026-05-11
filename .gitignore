@@ -1,0 +1,36 @@
+# Python (test scripts + pre-commit caches)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# Internal plans (not for distribution)
+docs/plans/
+
+# Plugin runtime state (auto-created by humanbound-* plugins inside test projects)
+.humanbound/
+
+# Editor caches
+.claude
+.cursor
