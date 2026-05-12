@@ -117,7 +117,7 @@ fi
 echo "  ✓ public URL  :  $URL"
 
 # 9. Persist state.
-write_state "$PROJECT" "$SERVER_PID" "$TUNNEL_PID" "$URL" "$PORT" "$TUNNEL_PROVIDER"
+write_state "$PROJECT" "$SERVER_PID" "$TUNNEL_PID" "$URL" "$TUNNEL_PROVIDER"
 ensure_gitignore_entry "$PROJECT"
 
 # 10. Print warning + the URL on its own line for the skill to capture.

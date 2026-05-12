@@ -33,8 +33,10 @@ Each invocation specifies `intent=<verb>`. Branch on `intent` and run the matchi
      "      package mgr    <package_mgr>"
 4. If <project>/.humanbound/test/config.toml does not exist:
      Run detect-server.py "$PROJECT" --write. This writes the TOML with
-     [server], [tunnel], and [test] sections. (Agent endpoints / payloads /
-     auth live in user-authored bot-config.json — handled in orchestrator Step 5.)
+     [server] and [tunnel] sections. (Agent endpoints / payloads / auth
+     live in user-authored bot-config.json — handled in orchestrator Step 5.
+     Per-run test config — category / testing level / fail-on — is
+     collected in dispatch Step 4, not persisted here.)
 5. Return to orchestrator.
 ```
 
@@ -109,7 +111,7 @@ Each invocation specifies `intent=<verb>`. Branch on `intent` and run the matchi
 4. >1 tunnel:
      AskUserQuestion (multi-select, header="Stop which?"):
        question: "Which tunnels do you want to stop?"
-       options:  one per running tunnel, labelled "<project_path> (port <port>)"
+       options:  one per running tunnel, labelled "<project_path>  ·  <public_url>"
      For each chosen entry: cd <project_path> && "${CLAUDE_PLUGIN_ROOT}/skills/tunneling-local-agent/scripts/stop.sh".
 5. Surface stop.sh output verbatim.
 ```
@@ -137,13 +139,14 @@ Each invocation specifies `intent=<verb>`. Branch on `intent` and run the matchi
      b. AskUserQuestion (multi-select, header="Edit fields"):
           question: "Which fields do you want to change?"
           options:  server.entry_point, server.port, server.host, server.health_path,
-                    tunnel.ngrok.domain, tunnel.ngrok.basic_auth, tunnel.ngrok.region,
-                    test.category, test.testing_level, test.fail_on
+                    tunnel.ngrok.domain, tunnel.ngrok.basic_auth, tunnel.ngrok.region
 
      (Agent endpoints / payloads / auth / telemetry live in
      `<project>/.humanbound/test/bot-config.json` — not in config.toml — and are
      user-authored. To change those, edit bot-config.json directly. See
-     https://docs.humanbound.ai/getting-started/agent-config/ for the schema.)
+     https://docs.humanbound.ai/getting-started/agent-config/ for the schema.
+     Per-run test config — category, testing level, fail-on — is collected
+     fresh each `/humanbound-test:run`; nothing to edit here.)
      c. Single-edit shortcut: when invoked from another flow (e.g., intent=start-tunnel asks
         for tunnel.ngrok.basic_auth), skip 2b and ask only the requested field.
      d. For each chosen field: AskUserQuestion (single-select) with 2-3 sensible suggestions.
@@ -169,9 +172,6 @@ Each invocation specifies `intent=<verb>`. Branch on `intent` and run the matchi
 | server.package_mgr | `uv`, `poetry`, `pip`, `pipenv`, `none` |
 | tunnel.ngrok.region | `us`, `eu`, `ap`, `au`, `sa`, `jp`, `in` |
 | tunnel.ngrok.basic_auth | `(empty)` (public access), `demo:<random-6>` |
-| test.category | `humanbound/adversarial/owasp_agentic` |
-| test.testing_level | `unit`, `system`, `acceptance` |
-| test.fail_on | `none`, `low`, `medium`, `high`, `critical` |
 
 ---
 

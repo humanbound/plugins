@@ -188,14 +188,14 @@ def test_fastapi_does_not_emit_agent_section(tmp_path: Path):
     assert "agent" not in flat_keys
 
 
-def test_fastapi_emits_test_defaults(tmp_path: Path):
+def test_fastapi_does_not_emit_test_section(tmp_path: Path):
+    """Test-run config (category, testing_level, fail_on) is collected
+    per-run by the dispatching skill via AskUserQuestion — not persisted
+    in config.toml. detect-server.py must NOT write a [test] block."""
     (tmp_path / "pyproject.toml").write_text('[project]\nname="x"\ndependencies=["fastapi"]\n')
     (tmp_path / "main.py").write_text("from fastapi import FastAPI\napp = FastAPI()\n")
     spec = detect(tmp_path)
-    assert spec["test"]["category"] == "humanbound/adversarial/owasp_agentic"
-    assert spec["test"]["testing_level"] == "unit"
-    assert spec["test"]["fail_on"] == "high"
-    assert spec["test"]["lang"] == "en"
+    assert "test" not in spec
 
 
 def test_fastapi_does_not_emit_runtime_section(tmp_path: Path):

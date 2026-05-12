@@ -53,7 +53,7 @@ still print Step 3's `✓` summary under its own header, never under the next st
 
 | What | Path |
 |---|---|
-| Plugin config (server + tunnel + test only) | `<project>/.humanbound/test/config.toml` |
+| Plugin config (server + tunnel only) | `<project>/.humanbound/test/config.toml` |
 | Plugin state (JSON) | `<project>/.humanbound/test/state.json` |
 | Plugin logs dir | `<project>/.humanbound/test/logs/` |
 | Bot config (user-authored, persistent) | `<project>/.humanbound/test/bot-config.json` |
@@ -265,9 +265,18 @@ The skill is invoked from the slash commands with `intent=<verb>`:
 Direct forwards — the orchestrator's role is purely routing here.
 
 ```
-intent=status  →  invoke tunneling-local-agent intent=status  +  also include experiment line from state.json if present
 intent=stop    →  invoke tunneling-local-agent intent=stop
 intent=config  →  invoke tunneling-local-agent intent=config
+
+intent=status:
+  1. Invoke tunneling-local-agent intent=status (tunnel info).
+  2. Read <project>/.humanbound/test/state.json. If it has an `experiment`
+     block, append a one-line experiment digest:
+       "  experiment   <id>  ·  status <status>"
+     If `experiment.summary` is also present, follow with a single indented
+     line — no boxed block, just a compact one-liner:
+       "  last run    crit=<c> high=<h> med=<m> low=<l>  ·  posture <score>/100 (grade <G>)  ·  <verdict>  ·  <finished_at>"
+     If no `experiment` block: skip silently (tunnel-only status).
 ```
 
 ## Cross-cutting rules

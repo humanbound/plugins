@@ -81,11 +81,13 @@ _TUNNEL_UNKNOWNS: list[str] = ["tunnel.ngrok.domain", "tunnel.ngrok.basic_auth"]
 
 
 def _build_fastapi_parts(project: Path) -> tuple[dict[str, Any], list[str]]:
-    """Detected fields for a FastAPI project. Server + tunnel + test only.
+    """Detected fields for a FastAPI project. Server + tunnel only.
 
     Agent endpoints (chat path, payload, auth, etc.) are not detected by
     this script — the user authors `bot-config.json` directly. See
-    `prepare-bot-config.py`.
+    `prepare-bot-config.py`. Test-run config (category, testing_level,
+    fail_on) is collected per-run by the dispatching skill, not persisted
+    here.
     """
     entry = _find_fastapi_entry_point(project) or "main:app"
     detected: dict[str, Any] = {
@@ -99,11 +101,6 @@ def _build_fastapi_parts(project: Path) -> tuple[dict[str, Any], list[str]]:
         "tunnel.provider": "ngrok",
         "tunnel.ngrok.region": "us",
     }
-    # Test defaults (overridable per-run).
-    detected["test.category"] = "humanbound/adversarial/owasp_agentic"
-    detected["test.testing_level"] = "unit"
-    detected["test.fail_on"] = "high"
-    detected["test.lang"] = "en"
     return detected, list(_TUNNEL_UNKNOWNS)
 
 

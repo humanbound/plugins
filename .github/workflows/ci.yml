@@ -75,3 +75,13 @@ jobs:
           else
             echo "no pytest suite — skipping"
           fi
+      - name: Install bats
+        run: sudo apt-get install -y bats
+      - name: Run humanbound-test bats suite
+        working-directory: plugins/humanbound-test
+        run: |
+          if [ -d tests/bash ]; then
+            bats tests/bash
+          else
+            echo "no bats suite — skipping"
+          fi

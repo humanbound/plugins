@@ -4,4 +4,4 @@ allowed-tools: Bash(python3 ${CLAUDE_PLUGIN_ROOT}/skills/tunneling-local-agent/s
 disable-model-invocation: false
 ---
 
-Invoke the `running-adversarial-tests` skill with `intent=config`. Edits the server + tunnel + test sections of `.humanbound/test/config.toml` interactively, without launching a test. (Agent endpoints / payloads / auth / telemetry live in user-authored `bot-config.json`, not here — see https://docs.humanbound.ai/getting-started/agent-config/)
+Invoke the `running-adversarial-tests` skill with `intent=config`. Edits the server + tunnel sections of `.humanbound/test/config.toml` interactively, without launching a test. (Agent endpoints / payloads / auth / telemetry live in user-authored `bot-config.json`, not here — see https://docs.humanbound.ai/getting-started/agent-config/. Per-run test config — category, testing level, fail-on — is collected interactively each `/humanbound-test:run`.)

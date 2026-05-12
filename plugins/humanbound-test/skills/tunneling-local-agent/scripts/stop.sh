@@ -29,7 +29,9 @@ stop_one() {
         is_running "$pid" || break
         sleep 0.5
       done
-      is_running "$pid" && kill -9 "$pid" 2>/dev/null || true
+      if is_running "$pid"; then
+        kill -9 "$pid" 2>/dev/null || true
+      fi
     fi
   done
   PROJECT="$project" bash -c "

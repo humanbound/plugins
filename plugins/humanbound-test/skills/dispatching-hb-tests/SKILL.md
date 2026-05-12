@@ -27,14 +27,26 @@ Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers 
 
 1. Project picker:
      a. Call hb_list_projects.
-     b. Try to match by asset URL (==public-url) or by name == cwd basename.
-     c. AskUserQuestion (single-select, header="Project"):
+     b. AFTER the call returns, print a compact readable digest directly
+        below the JSON receipt — never skip this:
+          "  ✓ <total> projects:"
+          "      • <name>  ·  <id-short>  ·  updated <relative-time>"
+          "      • …"
+        Field rules:
+          • <total>           — JSON `total` field
+          • <name>            — JSON `data[i].name`; show "(archived)" suffix if `is_archived=true`
+          • <id-short>        — first 8 chars of `data[i].id`
+          • <relative-time>   — humanize `data[i].updated_at` ("5m ago", "1h ago",
+                                "2d ago", or absolute date if older than 30 days)
+        Cap the list at 8 entries; if more, end with "      … and <n> more".
+     c. Try to match by asset URL (==public-url) or by name == cwd basename.
+     d. AskUserQuestion (single-select, header="Project"):
           question: "Which project should the test run in?"
           options:
-            "<detected-name> (existing)"     # if step b found a match
+            "<detected-name> (existing)"     # if step c found a match
             "Create a new project"
             "Pick a different existing project"
-     d. On "Pick different": AskUserQuestion listing project names from hb_list_projects.
+     e. On "Pick different": AskUserQuestion listing project names from hb_list_projects.
      Set path = A (new) or B (existing).
 
 2. (Path B only) If chosen project has a default_integration AND the user wants to
@@ -152,19 +164,42 @@ Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers 
    On 409 (duplicate experiment running): surface the existing experiment_id and offer
    "Resume polling that experiment?"
 
-10. Persist experiment to state.json (via pidfile.sh write_experiment).
+10. Persist experiment to state.json via:
+      PROJECT="<project>" bash -c "source $LIB/paths.sh; source $LIB/pidfile.sh; \
+        write_experiment \"<project>\" \"<experiment_id>\" \"<project_id>\" \"running\""
+    `write_experiment` is a merge operation — it adds the experiment block
+    without touching the tunnel state (server_pid, tunnel_pid, public_url,
+    etc.) that `start.sh` wrote in Step 4.
 
 11. Print: "  ✓ experiment_id: <id>"
 
 12. Polling loop (max 60 iterations, 15s between):
      a. Call hb_get_experiment_status(experiment_id).
-     b. Print one line: "  ⠋ status: <status>  <progress-info>  (HH:MM:SS elapsed)"
-        (Use a spinner glyph that rotates each iteration: ⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏ ⠋)
-     c. If status ∈ {succeeded, failed, terminated}: print "  ✓ status: <status>" and break.
+     b. AFTER each call returns, ALWAYS print one readable line directly below
+        the JSON receipt — never skip this, even on the very first iteration:
+          "  ⠋ status: <status>  ·  <log_count> logs  ·  (HH:MM:SS elapsed)"
+        Field rules:
+          • <status>     — JSON `status` field, lowercased (e.g. "running")
+          • <log_count>  — JSON `log_count` field; omit the segment if missing
+          • Rotate the spinner each iteration: ⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏ ⠋
+     c. Terminal check uses lowercased status. If status ∈ {succeeded, failed,
+        terminated}:
+          • Print "  ✓ status: <status>".
+          • Persist the terminal status to state.json so it doesn't stay
+            stuck at "running":
+              PROJECT="<project>" bash -c "source $LIB/paths.sh; source $LIB/pidfile.sh; \
+                update_experiment_status \"<project>\" \"<status>\""
+            (Merge-safe: tunnel block and the rest of the experiment block
+            are preserved.)
+          • Break the polling loop.
 
 13. If still running at iteration 60:
      Print: "  ⚠ still running — experiment_id=<id>. Re-run /humanbound-test:resume <id>."
-     Persist {experiment.status="running"} to state.json. Stop.
+     Persist {experiment.status="running"} via:
+       PROJECT="<project>" bash -c "source $LIB/paths.sh; source $LIB/pidfile.sh; \
+         update_experiment_status \"<project>\" \"running\""
+     This too is a merge — preserves tunnel state and the rest of the experiment block.
+     Stop.
 
 14. Render findings (see reference/findings-renderer.md):
      a. Call hb_get_experiment_logs(experiment_id). Print run summary.
@@ -172,11 +207,29 @@ Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers 
           - severity counts: "by severity:    critical=<n>   high=<n>   medium=<n>   low=<n>"
           - top 5 with bullets: "[<SEV>] <title>"
      c. Call hb_get_posture(project_id). Print "posture score: <s> / 100".
-     d. Fail-on verdict:
-          if any finding.severity >= test.fail_on:
+     d. Fail-on verdict (uses the `fail_on` value chosen in Step 4):
+          if any finding.severity >= fail_on:
             print "✗ FAIL: <count> finding(s) at severity >= <fail_on>"
+            verdict = "FAIL"
           else:
             print "✓ DONE"
+            verdict = "DONE"
+
+     e. Persist a results digest to state.json so `/humanbound-test:status`
+        can render last-run info without re-querying MCP:
+          PROJECT="<project>" bash -c "source $LIB/paths.sh; source $LIB/pidfile.sh; \
+            write_experiment_summary \"<project>\" '<summary-json>'"
+        Where <summary-json> is a single-line JSON object built from the
+        data already in hand:
+          {
+            "findings": {"critical":<c>, "high":<h>, "medium":<m>, "low":<l>, "total":<t>},
+            "posture":  {"score":<int>, "grade":"<G>"},
+            "verdict":  "<DONE|FAIL>",
+            "finished_at": "<iso8601-UTC, e.g. 2026-05-12T08:45:00Z>"
+          }
+        Merge-safe: tunnel state and `experiment.{id,project_id,status}` are
+        preserved. Single-quote the JSON arg to avoid shell-escaping the
+        inner double-quotes.
 
 15. Always remind:
      "  ⚠ Tunnel is still running at <public-url>"

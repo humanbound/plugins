@@ -74,9 +74,10 @@ Steps:
 Setup: any agent that doesn't have critical-severity findings, with `bot-config.json` already filled.
 
 Steps:
-1. `/humanbound-test:config` → edit `test.fail_on = critical`.
-2. Run `/humanbound-test:run`.
-   - Expect "✓ DONE" verdict at end.
+1. Run `/humanbound-test:run`.
+2. In the dispatching skill's Step 4 batched prompt, pick `Fail-on: critical`.
+3. Confirm and let the test complete.
+   - Expect "✓ DONE" verdict at end (no findings >= critical).
 
 ## Scenario S6 — resume a long-running experiment
 
@@ -95,7 +96,7 @@ State is always project-local; there is no user-home fallback. Verify the filesy
 Steps:
 1. Run `/humanbound-test:run` on a FastAPI demo with `bot-config.json` filled.
 2. After the tunnel comes up + dispatch completes:
-   - Expect config at `<project>/.humanbound/test/config.toml` (server + tunnel + test sections, no [agent.*]).
+   - Expect config at `<project>/.humanbound/test/config.toml` (server + tunnel sections, no [agent.*], no [test]).
    - Expect bot-config at `<project>/.humanbound/test/bot-config.json` (user-authored, includes inline auth tokens).
    - Expect state at `<project>/.humanbound/test/state.json` (tunnel pids + public URL + experiment id).
    - Expect logs at `<project>/.humanbound/test/logs/{server,tunnel}.log`.

@@ -95,9 +95,10 @@ guess at Pydantic field names. You know your agent better than our AST parser.
 Two files live under `<project>/.humanbound/test/`:
 
 **`config.toml`** — auto-generated on first run by `detect-server.py`. Holds
-the server section (FastAPI entry point, package manager, port) + tunnel
-section (ngrok region, optional basic auth) + test defaults (category,
-testing level, fail-on). Use `/humanbound-test:config` to edit interactively.
+the server section (FastAPI entry point, package manager, port) and tunnel
+section (ngrok region, optional basic auth). Use `/humanbound-test:config`
+to edit interactively. Per-run test config (category, testing level,
+fail-on) is collected fresh each run — not stored here.
 
 **`bot-config.json`** — you author this. The plugin generates a starter
 template on the first `/humanbound-test:run` (with the current ngrok URL
@@ -112,7 +113,7 @@ All runtime artifacts live under `<project>/.humanbound/test/` (auto-gitignored)
 
 ```
 <project>/.humanbound/test/
-├── config.toml      # server + tunnel + test config (auto-detected, you tweak via /humanbound-test:config)
+├── config.toml      # server + tunnel config (auto-detected, you tweak via /humanbound-test:config)
 ├── bot-config.json  # YOUR agent's endpoints, headers, payload, telemetry (you author once)
 ├── state.json       # runtime: tunnel pids, public URL, current experiment_id
 └── logs/            # server.log, tunnel.log

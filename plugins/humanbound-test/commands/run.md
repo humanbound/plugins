@@ -7,4 +7,4 @@ argument-hint: "[--unit | --system | --full]"
 
 Invoke the `running-adversarial-tests` skill with `intent=run`. Pass `$ARGUMENTS` so the user can override the testing level.
 
-If the user typed `--system` or `--full` (or `--deep`), set `test.testing_level` accordingly for this run only — don't persist to `config.toml`.
+If the user typed `--system` or `--full` (or `--deep`), use that as the default testing_level when the dispatching skill asks in Step 4 — nothing is persisted.
