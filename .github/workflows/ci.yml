@@ -65,7 +65,6 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
       - run: python -m pip install --upgrade pip pytest
       - name: Run humanbound-test pytest suite
         working-directory: plugins/humanbound-test
