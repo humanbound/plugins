@@ -5,7 +5,8 @@
   <br/>
   Auto-detects your FastAPI server, exposes it via ngrok, you fill in
   <code>bot-config.json</code>, the plugin dispatches via the
-  <code>humanbound</code> MCP and renders findings.
+  <code>humanbound</code> MCP — results land in your inbox by email
+  (or run <code>/humanbound-test:resume &lt;id&gt;</code> to watch in-band).
 </p>
 
 <p align="center">

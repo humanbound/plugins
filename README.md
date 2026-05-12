@@ -44,7 +44,7 @@
 
 | Plugin | Purpose | Status |
 |---|---|---|
-| [`humanbound-test`](plugins/humanbound-test/) | Run adversarial / security tests against a local AI agent end-to-end — currently FastAPI-only, exposes via ngrok, dispatches via the Humanbound MCP, renders findings. | `v0.1.0` |
+| [`humanbound-test`](plugins/humanbound-test/) | Run adversarial / security tests against a local AI agent end-to-end — currently FastAPI-only, exposes via ngrok, dispatches via the Humanbound MCP, results delivered by email (or `/humanbound-test:resume <id>` to watch in-band). | `v0.1.0` |
 
 ## Install in Claude Code
 
