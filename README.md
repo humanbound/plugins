@@ -23,6 +23,7 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/status-preview-FD9506?style=flat-square" alt="Status: preview"/>
   <a href="https://github.com/humanbound/plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/humanbound/plugins/ci.yml?style=flat-square&color=FD9506" alt="CI"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-FD9506?style=flat-square" alt="License"/></a>
   <a href="https://discord.gg/gQyXjVBF"><img src="https://img.shields.io/badge/discord-community-FD9506?style=flat-square" alt="Discord"/></a>
@@ -34,6 +35,10 @@
 > 📖 **Full documentation** for the plugins lives in each plugin's `README.md`.
 > The core Humanbound platform is documented at
 > [**docs.humanbound.ai**](https://docs.humanbound.ai/).
+
+> ⚠ **Preview.** Plugin APIs, slash commands, and on-disk layouts under
+> `.humanbound/` may change before 1.0. Pin to a specific tag if you depend
+> on a particular shape.
 
 ## Available plugins
 

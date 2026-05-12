@@ -16,6 +16,7 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/status-preview-FD9506?style=flat-square" alt="Status: preview"/>
   <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-FD9506?style=flat-square" alt="License"/></a>
   <a href="https://discord.gg/gQyXjVBF"><img src="https://img.shields.io/badge/discord-community-FD9506?style=flat-square" alt="Discord"/></a>
   <a href="https://docs.humanbound.ai/getting-started/agent-config/"><img src="https://img.shields.io/badge/docs-humanbound.ai-FD9506?style=flat-square" alt="Docs"/></a>
@@ -25,6 +26,10 @@
 
 > 📖 **`bot-config.json` schema reference** lives at
 > [docs.humanbound.ai/getting-started/agent-config/](https://docs.humanbound.ai/getting-started/agent-config/).
+
+> ⚠ **Preview (0.1.0).** Slash-command names, `bot-config.json` schema, and
+> `<project>/.humanbound/test/` on-disk layout may change before 1.0. Pin to
+> a specific tag if you depend on a particular shape.
 
 Works in **Claude Code** and **Cursor**.
 

@@ -66,4 +66,5 @@ jobs:
           body_path: release-notes.md
           files: dist/*.zip
           draft: false
-          prerelease: false
+          # Mark 0.x releases as pre-release; 1.0+ flip to stable automatically.
+          prerelease: ${{ startsWith(steps.parse.outputs.version, '0.') }}
