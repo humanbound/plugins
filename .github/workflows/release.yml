@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      # Multi-plugin marketplace: tag `v-<plugin>-<X.Y.Z>` (e.g. `v-humanbound-test-0.1.0`).
+      - "v-*-[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+
+jobs:
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Parse tag → plugin + version
+        id: parse
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          # Strip leading "v-" then split <plugin>-<version> on the LAST dash before the version.
+          REST="${TAG#v-}"
+          VERSION="${REST##*-}"
+          PLUGIN="${REST%-$VERSION}"
+          echo "tag=$TAG"           >> "$GITHUB_OUTPUT"
+          echo "plugin=$PLUGIN"     >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION"   >> "$GITHUB_OUTPUT"
+          echo "Parsed → plugin=$PLUGIN  version=$VERSION"
+
+      - name: Extract CHANGELOG section for this release
+        id: notes
+        run: |
+          PLUGIN="${{ steps.parse.outputs.plugin }}"
+          VERSION="${{ steps.parse.outputs.version }}"
+          # The CHANGELOG uses `## [<plugin> <version>] — YYYY-MM-DD` as its heading.
+          awk -v hdr="$PLUGIN $VERSION" '
+            $0 ~ "^## \\[" && index($0, hdr) { capture = 1; next }
+            capture && /^## \[/ { exit }
+            capture { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "No CHANGELOG entry found for $PLUGIN $VERSION — using tag name as the release body."
+            echo "Release ${{ steps.parse.outputs.tag }}" > release-notes.md
+          fi
+
+      - name: Bundle plugin source
+        run: |
+          PLUGIN="${{ steps.parse.outputs.plugin }}"
+          VERSION="${{ steps.parse.outputs.version }}"
+          if [ ! -d "plugins/$PLUGIN" ]; then
+            echo "::error::plugins/$PLUGIN does not exist"
+            exit 1
+          fi
+          mkdir -p dist
+          # Zip the plugin tree (relative to plugins/) so the archive root is the plugin dir.
+          ( cd plugins && zip -r "../dist/${PLUGIN}-${VERSION}.zip" "$PLUGIN" \
+              -x '*/.git/*' -x '*/__pycache__/*' -x '*/.DS_Store' )
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.parse.outputs.tag }}
+          name: ${{ steps.parse.outputs.plugin }} ${{ steps.parse.outputs.version }}
+          body_path: release-notes.md
+          files: dist/*.zip
+          draft: false
+          prerelease: false

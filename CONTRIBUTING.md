@@ -8,6 +8,7 @@ for extended guidance, see [docs.humanbound.ai/community/contributing](https://d
 ```bash
 git clone https://github.com/humanbound/plugins.git
 cd plugins
+pre-commit install                                  # wire up the local hooks
 
 # To dev a plugin in Claude Code: symlink into local plugins dir
 mkdir -p ~/.claude/plugins/local
@@ -15,6 +16,10 @@ ln -s "$PWD/plugins/humanbound-test" ~/.claude/plugins/local/humanbound-test
 ```
 
 Open Claude Code; the `/humanbound-test:*` commands load from your working copy.
+
+For cross-cutting conventions that apply to every public Humanbound repo
+(README skeleton, CHANGELOG format, governance files, CI scaffolding, tone),
+see [`humanbound/.github` REPO_STANDARDS](https://github.com/humanbound/.github/blob/main/REPO_STANDARDS.md).
 
 ## Repo layout
 
@@ -61,19 +66,27 @@ instruction to sign.
 
 ### Code style
 
-- Shell scripts: `bash`, `set -euo pipefail` at top, `shellcheck` clean
+- Shell scripts: `bash`, `set -euo pipefail` at top, `shellcheck` clean.
+  Document deliberate exceptions inline — for instance, scripts that may
+  run under sandboxed harnesses with `HOME` unset drop `-u` and explain why
+  in a comment (see `scripts/start-mcp.sh`, `installing-humanbound-mcp/scripts/check-mcp.sh`).
 - Python helper scripts: stdlib only where possible, ruff-compatible
-- JSON / YAML: 2-space indent, trailing newline
+- JSON / YAML / TOML: 2-space indent, trailing newline
 - SPDX header on every new shell or Python file:
   ```
   # SPDX-License-Identifier: Apache-2.0
   # Copyright (c) 2024-2026 Humanbound
   ```
+- `.pre-commit-config.yaml` enforces the above; run `pre-commit install`
+  after cloning
 
 ### Tests
 
-- Bash scripts get a `tests/bats/` smoke test (assertion on stdout/exit code)
+- Bash scripts get a smoke test under `tests/bash/` (bats — assertion on
+  stdout/exit code)
 - Python helpers get pytest coverage under `tests/python/`
+- CI runs both suites on every PR across Python 3.11 + 3.12 (see
+  `.github/workflows/ci.yml`)
 - Interactive flows (slash commands) are tested manually; document the
   manual test plan in the PR description
 

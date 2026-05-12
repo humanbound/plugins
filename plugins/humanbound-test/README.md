@@ -1,10 +1,30 @@
-# humanbound-test
+<h3 align="center">humanbound-test</h3>
 
-> Adversarial / security testing for your local AI agent. Runs end-to-end:
-> auto-detects your FastAPI server, exposes it via ngrok, you fill in the
-> agent's endpoints / auth / payload in `bot-config.json` (once), the plugin
-> dispatches the test through the `humanbound` MCP and renders findings with
-> severity counts and posture score.
+<p align="center">
+  Adversarial / security testing for your local AI agent.
+  <br/>
+  Auto-detects your FastAPI server, exposes it via ngrok, you fill in
+  <code>bot-config.json</code>, the plugin dispatches via the
+  <code>humanbound</code> MCP and renders findings.
+</p>
+
+<p align="center">
+  <a href="#slash-commands">Slash commands</a> &middot;
+  <a href="#install">Install</a> &middot;
+  <a href="#configuration">Configuration</a> &middot;
+  <a href="https://docs.humanbound.ai/">Documentation</a>
+</p>
+
+<p align="center">
+  <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-FD9506?style=flat-square" alt="License"/></a>
+  <a href="https://discord.gg/gQyXjVBF"><img src="https://img.shields.io/badge/discord-community-FD9506?style=flat-square" alt="Discord"/></a>
+  <a href="https://docs.humanbound.ai/getting-started/agent-config/"><img src="https://img.shields.io/badge/docs-humanbound.ai-FD9506?style=flat-square" alt="Docs"/></a>
+</p>
+
+---
+
+> 📖 **`bot-config.json` schema reference** lives at
+> [docs.humanbound.ai/getting-started/agent-config/](https://docs.humanbound.ai/getting-started/agent-config/).
 
 Works in **Claude Code** and **Cursor**.
 
@@ -42,7 +62,8 @@ what you want — no slash needed. The orchestrator skill matches phrases like:
 - *"run a humanbound test"*
 
 The agent infers your intent, asks for any missing config interactively, and
-walks the same `verify MCP → verify ngrok → detect server → tunnel → bot-config → run test` flow.
+walks the same `verify MCP → verify ngrok → detect server → tunnel →
+bot-config → run test` flow.
 
 > **Note:** the other five commands (`setup`, `status`, `resume`, `stop`,
 > `config`) are slash-only by design — their internal skills explicitly avoid
@@ -73,22 +94,26 @@ ln -s ~/src/humanbound-plugins/plugins/humanbound-test ~/.cursor/plugins/local/h
 
 - macOS (primary) or Linux (best-effort)
 - Python ≥ 3.11 (`tomllib` from stdlib)
-- `humanbound[mcp]` Python package — the plugin offers to install it on first run
-- `ngrok` CLI authenticated — the plugin walks you through `brew install ngrok` + auth-token setup if needed
+- `humanbound[mcp]` Python package — the plugin offers to install it on first
+  run. Authentication via `hb login` is required: this plugin dispatches
+  adversarial tests through the hosted Humanbound platform, so a logged-in
+  `hb` session is a hard prerequisite for `/humanbound-test:run`.
+- `ngrok` CLI authenticated — the plugin walks you through
+  `brew install ngrok` + auth-token setup if needed.
 
 ## Supported frameworks
 
 Currently ships **FastAPI server detection only**. Other server frameworks
 (Flask, Django, LangServe, Streamlit, Gradio, Express, Next.js, Hono, …) are
-not supported — running the plugin in a non-FastAPI project errors out with a
-pointer to the roadmap. See [ROADMAP](../../ROADMAP.md) for the prioritized
+not supported — running the plugin in a non-FastAPI project errors out with
+a pointer to the roadmap. See [ROADMAP](../../ROADMAP.md) for the prioritised
 expansion plan (LangServe + runtime OpenAPI scrape are the top items planned
 next).
 
 The plugin does **NOT** auto-detect agent endpoints, payload shapes, or auth.
-You author those yourself in `bot-config.json` (Step 5 of the flow). This
-keeps the plugin honest — we don't pattern-match against route decorators or
-guess at Pydantic field names. You know your agent better than our AST parser.
+You author those yourself in `bot-config.json`. This keeps the plugin honest —
+we don't pattern-match against route decorators or guess at Pydantic field
+names. You know your agent better than our detector.
 
 ## Configuration
 
@@ -96,20 +121,21 @@ Two files live under `<project>/.humanbound/test/`:
 
 **`config.toml`** — auto-generated on first run by `detect-server.py`. Holds
 the server section (FastAPI entry point, package manager, port) and tunnel
-section (ngrok region, optional basic auth). Use `/humanbound-test:config`
-to edit interactively. Per-run test config (category, testing level,
-fail-on) is collected fresh each run — not stored here.
+section (ngrok region, optional basic auth). Use `/humanbound-test:config` to
+edit interactively. Per-run test config (category, testing level, fail-on) is
+collected fresh each run — not stored here.
 
 **`bot-config.json`** — you author this. The plugin generates a starter
 template on the first `/humanbound-test:run` (with the current ngrok URL
 pre-filled and `<your-...>` placeholders for paths / auth / payload /
-telemetry). Fill it in once; on every subsequent run the plugin just
-refreshes the ngrok URL host. Schema reference:
-**[docs.humanbound.ai/getting-started/agent-config/](https://docs.humanbound.ai/getting-started/agent-config/)**
+telemetry). Fill it in once; on every subsequent run the plugin just refreshes
+the ngrok URL host. Schema reference:
+[docs.humanbound.ai/getting-started/agent-config/](https://docs.humanbound.ai/getting-started/agent-config/).
 
 ## State layout
 
-All runtime artifacts live under `<project>/.humanbound/test/` (auto-gitignored):
+All runtime artifacts live under `<project>/.humanbound/test/`
+(auto-gitignored):
 
 ```
 <project>/.humanbound/test/

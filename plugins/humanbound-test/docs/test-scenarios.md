@@ -35,17 +35,17 @@ Steps:
 Steps:
 1. From S1's tunnel: run `/humanbound-test:status`. Should show running tunnel + last experiment.
 2. Run `/humanbound-test:run` again.
-   - Steps 1-2 reuse cached config and pass infra check.
-   - Step 3 detects already-running tunnel and skips re-start (existing public URL reused).
-   - Step 4 prints "ngrok_refreshed" (no host change needed since URL is the same).
-   - Project picker matches the existing project from S1.
+   - Steps 1-3 fast (cached MCP auth + cached server detection).
+   - Step 4 detects already-running tunnel and skips re-start (existing public URL reused).
+   - Step 5 prints "ngrok_refreshed" (no host change needed since URL is the same).
+   - Step 6 project picker matches the existing project from S1.
 
 ## Scenario S3 — agent with header auth (inline in bot-config.json)
 
 Setup: FastAPI project where `/chat` requires `x-api-key: <token>` header.
 
 Steps:
-1. Run `/humanbound-test:run`. On first run, Step 4 writes the template and stops.
+1. Run `/humanbound-test:run`. On first run, Step 5 writes the template and stops.
 2. Edit `.humanbound/test/bot-config.json`:
    ```json
    "chat_completion": {
@@ -55,7 +55,7 @@ Steps:
    }
    ```
 3. Re-run `/humanbound-test:run`.
-   - Step 4 validates: passes (endpoint non-placeholder, $PROMPT present, no localhost).
+   - Step 5 validates: passes (endpoint non-placeholder, $PROMPT present, no localhost).
    - Confirm: tokens never echoed back to chat.
 4. After dispatch completes, verify `.humanbound/test/bot-config.json` is the only place the token lives. It's gitignored — never accidentally committed.
 
@@ -65,8 +65,9 @@ Setup: any non-FastAPI project (e.g. an Express `package.json` with no Python fi
 
 Steps:
 1. Run `/humanbound-test:run`.
-   - Expect ▸ Step 1/6 ✗ "no FastAPI detected. humanbound-test currently supports FastAPI projects only — see ROADMAP.md for the framework expansion plan."
-   - Expect exit code 1, no `.humanbound/` directory created in the project.
+   - Expect Steps 1-2 to pass (MCP + ngrok ready).
+   - Expect ▸ Step 3/6 ✗ "no FastAPI detected. humanbound-test currently supports FastAPI projects only — see ROADMAP.md for the framework expansion plan."
+   - Expect non-zero exit, no `.humanbound/` directory created in the project.
    - Expect NO interactive prompts (we don't pretend to support frameworks we can't test end-to-end).
 
 ## Scenario S5 — fail-on=critical with a clean run
@@ -109,6 +110,6 @@ Setup: a project that's been tested at least once (bot-config.json populated).
 Steps:
 1. Run `/humanbound-test:stop` to tear down the current tunnel.
 2. Run `/humanbound-test:run` again. The new ngrok URL will be DIFFERENT from last time (free ngrok = random URL per session).
-3. Verify Step 4 prints "ngrok_refreshed" and `bot-config.json` now contains the new ngrok host in `chat_completion.endpoint` and `thread_init.endpoint`.
+3. Verify Step 5 prints "ngrok_refreshed" and `bot-config.json` now contains the new ngrok host in `chat_completion.endpoint` and `thread_init.endpoint`.
 4. Verify the path portion of each endpoint is preserved (e.g. `/chat` still `/chat`).
 5. Verify validation passes and dispatch proceeds without user intervention.
