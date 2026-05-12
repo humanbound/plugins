@@ -59,7 +59,7 @@ jobs:
               -x '*/.git/*' -x '*/__pycache__/*' -x '*/.DS_Store' )
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.parse.outputs.tag }}
           name: ${{ steps.parse.outputs.plugin }} ${{ steps.parse.outputs.version }}
