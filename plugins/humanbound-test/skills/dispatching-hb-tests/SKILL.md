@@ -1,11 +1,11 @@
 ---
 name: dispatching-hb-tests
-description: Internal phase skill for humanbound-test. Picks/creates the humanbound project, reads the user-authored ClientBotConfiguration from bot-config.json, dispatches the test via `hb_connect` or `hb_run_test`, polls until terminal, and renders findings. Drives Step 6 of the orchestrator (the "Run test" phase: project picker + summary + confirm + dispatch + poll + render). Do NOT trigger on user phrasing.
+description: Internal phase skill for humanbound-test. Picks/creates the humanbound project, reads the user-authored ClientBotConfiguration from bot-config.json, dispatches the test via `hb_connect` or `hb_run_test`, then exits with a "grab a coffee" message and watch hint — results are delivered by email. Drives Step 6 of the orchestrator (the "Run test" phase: project picker + summary + confirm + dispatch + exit). On `intent=resume <id>`, polls until terminal and renders findings inline. Do NOT trigger on user phrasing.
 ---
 
 # Dispatching humanbound tests
 
-Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers test-run config (depth, fail-on, etc.), dispatches with the bot-config that was prepared in Step 5, polls, renders findings. MCP authentication is verified in Step 1 of the orchestrator; by the time this skill runs we can trust hb_whoami returns authenticated:true.
+Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers test-run config (depth, fail-on, etc.), dispatches with the bot-config that was prepared in Step 5, then exits with a watch hint — results are delivered by email. Polling + findings render lives under the "Resume path" section below and is reached only from `intent=resume <id>`. MCP authentication is verified in Step 1 of the orchestrator; by the time this skill runs we can trust hb_whoami returns authenticated:true.
 
 ## Cross-cutting rules
 
@@ -15,7 +15,7 @@ Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers 
 4. **Detected values are surfaced as plain text, never as a prompt.**
 5. **`AskUserQuestion` always exposes "Other" automatically.**
 6. **Surface every MCP tool's error verbatim. Stop on failure — never retry the same call unchanged.**
-7. **Polling discipline:** wait ≥15s between `hb_get_experiment_status` calls. Stop when status ∈ {succeeded, failed, terminated}. Cap at 60 iterations (~15 min).
+7. **No polling on the run path.** `intent=run` exits after dispatch with a coffee message + watch hint — do NOT call `hb_get_experiment_status`, `hb_list_findings`, or `hb_get_posture` from the run flow. Polling discipline applies on the resume path only (see "Resume path" section): wait ≥15s between `hb_get_experiment_status` calls, stop when status ∈ {succeeded, failed, terminated}, cap at 60 iterations (~15 min).
 8. **Do not tear down the tunnel automatically.** Always remind the user to run `/humanbound-test:stop` when done.
 
 ---
@@ -173,7 +173,57 @@ Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers 
 
 11. Print: "  ✓ experiment_id: <id>"
 
-12. Polling loop (max 60 iterations, 15s between):
+12. Exit with watch hint — DO NOT POLL.
+
+    Pick one line at random from the list below. Lines are sourced verbatim from
+    the CLI's `hb connect` / `hb test` exit message — keep the emoji prefix and
+    the em-dash (U+2014). Do NOT rewrite, translate, or strip the emoji.
+
+      "☕ Go grab a coffee — we've got it from here. Email incoming when done."
+      "🍺 Red team deployed — treat yourself to a beer, email coming soon."
+      "🌿 Our agents are on it — go touch grass, we'll email you the results."
+      "🥊 The bots are fighting — grab a snack and check your inbox later."
+      "🔓 Hacking in progress — no really, go do something fun. Email on the way."
+      "🚀 We're poking your agent now — go stretch, results hit your inbox shortly."
+      "🧘 Time for a break — we'll ping you by email once we're through."
+      "🎯 Sit back and relax — we'll email you when results are ready."
+
+    Then print the exit block. Single line per row (same vocabulary as Step 7),
+    middle-dot `·` (U+00B7) separator where multiple fields share a row:
+
+      ──────────────────────────────────────────────────────────────────
+        <chosen coffee line>
+
+        Experiment   <experiment_id>
+        Watch        /humanbound-test:resume <experiment_id>
+      ──────────────────────────────────────────────────────────────────
+
+    Hard rules for Step 12:
+      • Do NOT call `hb_get_experiment_status`, `hb_list_findings`, or
+        `hb_get_posture` here. Results are delivered by email; the user opts
+        in to in-band polling via `/humanbound-test:resume <id>`.
+      • Do NOT loop, sleep, or "just check once" — exit immediately after
+        printing the block.
+      • The experiment block in state.json keeps `status="running"`
+        (written by Step 10). It updates to a terminal status only when
+        `/humanbound-test:resume <id>` is run.
+
+13. Always remind:
+     "  ⚠ Tunnel is still running at <public-url>"
+     "    Run /humanbound-test:stop to tear it down."
+```
+
+---
+
+## Resume path — polling + findings render
+
+Entered from the orchestrator's `intent=resume <id>` (running-adversarial-tests).
+Steps 1–11 of the run flow are skipped — the experiment already exists; we just
+observe it and render results inline. This section owns the polling discipline
+called out in cross-cutting rule #7.
+
+```
+1. Polling loop (max 60 iterations, 15s between):
      a. Call hb_get_experiment_status(experiment_id).
      b. AFTER each call returns, ALWAYS print one readable line directly below
         the JSON receipt — never skip this, even on the very first iteration:
@@ -193,7 +243,7 @@ Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers 
             are preserved.)
           • Break the polling loop.
 
-13. If still running at iteration 60:
+2. If still running at iteration 60:
      Print: "  ⚠ still running — experiment_id=<id>. Re-run /humanbound-test:resume <id>."
      Persist {experiment.status="running"} via:
        PROJECT="<project>" bash -c "source $LIB/paths.sh; source $LIB/pidfile.sh; \
@@ -201,13 +251,14 @@ Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers 
      This too is a merge — preserves tunnel state and the rest of the experiment block.
      Stop.
 
-14. Render findings (see reference/findings-renderer.md):
+3. Render findings (see reference/findings-renderer.md):
      a. Call hb_get_experiment_logs(experiment_id). Print run summary.
      b. Call hb_list_findings(experiment_id). Print:
           - severity counts: "by severity:    critical=<n>   high=<n>   medium=<n>   low=<n>"
           - top 5 with bullets: "[<SEV>] <title>"
      c. Call hb_get_posture(project_id). Print "posture score: <s> / 100".
-     d. Fail-on verdict (uses the `fail_on` value chosen in Step 4):
+     d. Fail-on verdict (uses the `fail_on` value chosen at original dispatch
+        — read from state.json if not in scope):
           if any finding.severity >= fail_on:
             print "✗ FAIL: <count> finding(s) at severity >= <fail_on>"
             verdict = "FAIL"
@@ -231,7 +282,7 @@ Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers 
         preserved. Single-quote the JSON arg to avoid shell-escaping the
         inner double-quotes.
 
-15. Always remind:
+4. Always remind:
      "  ⚠ Tunnel is still running at <public-url>"
      "    Run /humanbound-test:stop to tear it down."
 ```
@@ -241,4 +292,4 @@ Step 6 of the orchestrator — the "Run test" phase. Picks the project, gathers 
 ## See also
 
 - `reference/required-data.md` — full ClientBotConfiguration / Project / Experiment schema.
-- `reference/findings-renderer.md` — exact terminal layout for the findings block.
+- `reference/findings-renderer.md` — exact terminal layout for the findings block (rendered on the resume path).

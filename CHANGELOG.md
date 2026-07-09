@@ -8,6 +8,17 @@ and each plugin adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- **humanbound-test:** `/humanbound-test:run` no longer polls the experiment
+  and renders findings inline. After dispatch it prints a randomly-chosen
+  "grab a coffee" message (sourced verbatim from the `hb connect` exit
+  message in `humanbound-cli`), the experiment ID, and a one-line watch
+  hint pointing at `/humanbound-test:resume <id>`, then exits. Results are
+  delivered by email; in-band polling + findings render is now reached
+  only via `/humanbound-test:resume <id>` (the polling logic moved into a
+  dedicated "Resume path" section in `dispatching-hb-tests/SKILL.md` — no
+  behavior change for resume itself).
+
 ## [humanbound-test 0.1.0] — 2026-05-12
 
 ### Added

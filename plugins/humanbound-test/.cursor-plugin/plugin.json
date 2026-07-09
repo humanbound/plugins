@@ -2,7 +2,7 @@
   "name": "humanbound-test",
   "displayName": "Humanbound Test",
   "version": "0.1.0",
-  "description": "Adversarial / security testing for local AI agents — auto-detects the FastAPI server, you author bot-config.json with endpoints / auth / payload, exposes via ngrok, dispatches via the Humanbound MCP, renders findings.",
+  "description": "Adversarial / security testing for local AI agents — auto-detects the FastAPI server, you author bot-config.json with endpoints / auth / payload, exposes via ngrok, dispatches via the Humanbound MCP. Results delivered by email; run /humanbound-test:resume <id> to watch in-band.",
   "author": { "name": "humanbound" },
   "homepage": "https://github.com/humanbound/plugins",
   "repository": "https://github.com/humanbound/plugins",

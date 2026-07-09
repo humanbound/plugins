@@ -1,7 +1,7 @@
 {
   "name": "humanbound-test",
   "version": "0.1.0",
-  "description": "Run adversarial / security tests against your local AI agent. Detects your FastAPI server, exposes it via ngrok, you author bot-config.json with your endpoints / auth / payload, the plugin dispatches via the humanbound MCP and renders findings with severity counts and posture score.",
+  "description": "Run adversarial / security tests against your local AI agent. Detects your FastAPI server, exposes it via ngrok, you author bot-config.json with your endpoints / auth / payload, the plugin dispatches via the humanbound MCP — results delivered by email (or run /humanbound-test:resume <id> to watch the polling loop and findings inline).",
   "author": { "name": "humanbound" },
   "homepage": "https://github.com/humanbound/plugins",
   "repository": "https://github.com/humanbound/plugins",

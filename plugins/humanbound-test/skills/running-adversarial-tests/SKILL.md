@@ -1,6 +1,6 @@
 ---
 name: running-adversarial-tests
-description: MUST USE for ANY request to run an adversarial / security / pentest test against a local AI agent. Triggers on phrases like "run an adversarial test on my local agent", "run an adversarial test", "pentest my AI", "security test for my agent", "run owasp_agentic on my assistant", "test my chatbot for jailbreaks", "run a humanbound test", "run hb test on this", "test my agent". Drives the full end-to-end flow — verify humanbound MCP, detect server, discover endpoints, expose via ngrok, dispatch via humanbound MCP, poll, and render findings.
+description: MUST USE for ANY request to run an adversarial / security / pentest test against a local AI agent. Triggers on phrases like "run an adversarial test on my local agent", "run an adversarial test", "pentest my AI", "security test for my agent", "run owasp_agentic on my assistant", "test my chatbot for jailbreaks", "run a humanbound test", "run hb test on this", "test my agent". Drives the full end-to-end flow — verify humanbound MCP, detect server, discover endpoints, expose via ngrok, dispatch via humanbound MCP, then exit with a "grab a coffee" message (results land in the user's inbox by email; `/humanbound-test:resume <id>` is the opt-in in-band polling + findings render).
 ---
 
 # Running an adversarial test against a local agent
@@ -235,9 +235,11 @@ The skill is invoked from the slash commands with `intent=<verb>`:
 
 7. Step 6/6 — Run test:
    Invoke `dispatching-hb-tests`. It owns: project picker, test config gathering,
-   summary block, confirm prompt, dispatch (hb_connect / hb_run_test), polling
-   loop, and findings render. The skill prints "▸ Step 6/6  Running test" and
-   reads bot-config.json directly from `<project>/.humanbound/test/bot-config.json`.
+   summary block, confirm prompt, dispatch (hb_connect / hb_run_test), and the
+   coffee-message exit block (no in-band polling — results delivered by email;
+   the user opts into in-band polling via `/humanbound-test:resume <id>`). The
+   skill prints "▸ Step 6/6  Running test" and reads bot-config.json directly
+   from `<project>/.humanbound/test/bot-config.json`.
 
 8. Final reminder line about `/humanbound-test:stop` — printed by `dispatching-hb-tests`.
 ```
@@ -247,8 +249,10 @@ The skill is invoked from the slash commands with `intent=<verb>`:
 ```
 1. Print: "▸ Resuming experiment <id>"
 2. Read state.json. If experiment.id != <id>: warn but proceed.
-3. Skip to Step 6/6 of `dispatching-hb-tests` polling loop.
-4. Render findings.
+3. Invoke `dispatching-hb-tests` — "Resume path — polling + findings render"
+   section. Polls hb_get_experiment_status, renders findings on terminal status,
+   updates state.json with the summary digest. (Steps 1–11 of the run flow are
+   skipped — the experiment already exists.)
 ```
 
 ## intent=setup
