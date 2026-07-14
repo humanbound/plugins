@@ -24,7 +24,7 @@
 - [ ] Plugin tests pass (`./tests/run-tests.sh` inside the affected plugin)
 - [ ] Interactive flow verified manually in **both** Claude Code and Cursor
 - [ ] `CHANGELOG.md` updated under `[Unreleased]` with plugin name prefix
-- [ ] [CLA](https://github.com/humanbound/plugins/blob/main/CLA.md) signed (the CLAAssistant bot will prompt you on first PR)
+- [ ] All commits are signed off (`git commit -s`) — see [DCO.md](https://github.com/humanbound/plugins/blob/main/DCO.md)
 
 ## Linked issue(s)
 
