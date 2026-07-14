@@ -94,8 +94,8 @@ Different hook models, equivalent posture.
 
 Contributions are welcome — both bug fixes for the existing plugin and
 proposals for new plugins. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the
-dev loop, plugin layout conventions, and the CLA requirement (see
-[CLA.md](./CLA.md)).
+dev loop, plugin layout conventions, and the DCO sign-off requirement (see
+[DCO.md](./DCO.md)).
 
 - 🐛 [Report a bug](https://github.com/humanbound/plugins/issues/new/choose)
 - 💡 [Request a feature](https://github.com/humanbound/plugins/issues/new/choose)

@@ -48,12 +48,39 @@ Bugs, feature requests, and questions all live in
 
 **Do not file security issues publicly.** See [SECURITY.md](./SECURITY.md).
 
-## Contributor License Agreement (CLA) — required
+## Developer Certificate of Origin (DCO) — required
 
-Every external contribution must be covered by the
-[Humanbound Contributor License Agreement](./CLA.md). The first time you
-open a pull request, the CLAAssistant bot will comment with a one-line
-instruction to sign.
+This project does **not** use a CLA. Contributions are accepted under the
+[Developer Certificate of Origin](./DCO.md) — the same lightweight mechanism
+used by the Linux kernel, CNCF projects, and GitLab. You keep the copyright
+to your work; it is licensed inbound = outbound under
+[Apache-2.0](./LICENSE), exactly like the rest of the codebase.
+
+There is nothing to sign — just add the `-s` flag when committing:
+
+```bash
+git commit -s -m "your message"
+```
+
+CI checks that every commit in a pull request carries the resulting
+`Signed-off-by` trailer. Forgot one? `git commit --amend -s` (or
+`git rebase --signoff main` for a whole branch) and force-push.
+
+## Third-party code and licenses
+
+To keep the repository safely redistributable under Apache-2.0:
+
+- **Code copied or vendored into this repository** (scripts, snippets,
+  assets) must be under a permissive license: Apache-2.0, MIT, BSD (2- or
+  3-clause), or ISC. Include the upstream copyright notice and license
+  text, and mention the origin in your PR description.
+- **New dependencies a plugin pulls in at runtime** must be permissively
+  licensed as above; weak-copyleft dependencies (MPL-2.0, LGPL) are
+  acceptable only unmodified and need maintainer sign-off.
+- **GPL, AGPL, SSPL, or BSL-licensed code cannot be accepted** in any form
+  (vendored, copied, or as a dependency).
+
+If you're unsure about a license, ask in the PR before writing code.
 
 ## Change workflow
 
