@@ -29,6 +29,11 @@ and each plugin adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - `CONTRIBUTING.md` gains an explicit third-party license policy: vendored
   code must be permissively licensed (Apache-2.0/MIT/BSD/ISC); GPL, AGPL,
   SSPL, and BSL code cannot be accepted.
+- **Discord links now point at the `#start-here` invite** (repo-wide, #7).
+  Every Discord link in the repo used `discord.gg/gQyXjVBF`, which no longer
+  resolves. `README.md`, `CONTRIBUTING.md`, the new-issue chooser, and the
+  `humanbound-test` plugin README now use `discord.gg/QFTD6tr9zu`, the live
+  invite www.humanbound.ai links to.
 
 ### Added
 - `NOTICE` file per Apache-2.0 section 4(d).
