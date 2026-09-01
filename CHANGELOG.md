@@ -34,6 +34,12 @@ and each plugin adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
   resolves. `README.md`, `CONTRIBUTING.md`, the new-issue chooser, and the
   `humanbound-test` plugin README now use `discord.gg/QFTD6tr9zu`, the live
   invite www.humanbound.ai links to.
+- `LICENSE` restored to the verbatim Apache-2.0 text (repo-wide). Sections 6
+  and 9 had diverged from the canonical wording and the appendix was
+  missing; the file now matches apache.org/licenses/LICENSE-2.0 exactly,
+  apart from the appendix copyright line. The license grant is unchanged —
+  the repository was and remains Apache-2.0 — but GitHub now detects the
+  license, where it previously reported the repository as "Other".
 
 ### Added
 - `NOTICE` file per Apache-2.0 section 4(d).
