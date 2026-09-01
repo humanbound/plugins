@@ -133,7 +133,7 @@ repo itself is not versioned.
 
 ## Community
 
-- **Discord** — [discord.gg/gQyXjVBF](https://discord.gg/gQyXjVBF)
+- **Discord** — [discord.gg/QFTD6tr9zu](https://discord.gg/QFTD6tr9zu)
 - **Discussions** — on the GitHub repo
 - **Docs** — [docs.humanbound.ai](https://docs.humanbound.ai)
 

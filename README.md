@@ -26,7 +26,7 @@
   <img src="https://img.shields.io/badge/status-preview-FD9506?style=flat-square" alt="Status: preview"/>
   <a href="https://github.com/humanbound/plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/humanbound/plugins/ci.yml?style=flat-square&color=FD9506" alt="CI"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-FD9506?style=flat-square" alt="License"/></a>
-  <a href="https://discord.gg/gQyXjVBF"><img src="https://img.shields.io/badge/discord-community-FD9506?style=flat-square" alt="Discord"/></a>
+  <a href="https://discord.gg/QFTD6tr9zu"><img src="https://img.shields.io/badge/discord-community-FD9506?style=flat-square" alt="Discord"/></a>
   <a href="https://docs.humanbound.ai/"><img src="https://img.shields.io/badge/docs-humanbound.ai-FD9506?style=flat-square" alt="Docs"/></a>
 </p>
 
@@ -100,7 +100,7 @@ dev loop, plugin layout conventions, and the DCO sign-off requirement (see
 - 🐛 [Report a bug](https://github.com/humanbound/plugins/issues/new/choose)
 - 💡 [Request a feature](https://github.com/humanbound/plugins/issues/new/choose)
 - 🔒 [Report a security issue](./SECURITY.md) — **not via public Issues**
-- 💬 [Join Discord](https://discord.gg/gQyXjVBF)
+- 💬 [Join Discord](https://discord.gg/QFTD6tr9zu)
 
 ## License
 
