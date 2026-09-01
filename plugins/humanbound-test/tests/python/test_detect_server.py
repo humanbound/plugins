@@ -1,26 +1,23 @@
 """Tests for skills/tunneling-local-agent/scripts/detect-server.py."""
+
 from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
-
 from detect_server import detect, detect_json
 
-
 # ---------- fixtures ----------
+
 
 @pytest.fixture
 def fastapi_project(tmp_path: Path) -> Path:
     """A minimal uv-managed FastAPI project."""
     (tmp_path / "pyproject.toml").write_text(
-        '[project]\nname = "demo"\nversion = "0.1.0"\n'
-        'dependencies = ["fastapi[standard]>=0.110"]\n'
+        '[project]\nname = "demo"\nversion = "0.1.0"\ndependencies = ["fastapi[standard]>=0.110"]\n'
     )
     (tmp_path / "uv.lock").write_text("# fake lock\n")
-    (tmp_path / "main.py").write_text(
-        "from fastapi import FastAPI\napp = FastAPI()\n"
-    )
+    (tmp_path / "main.py").write_text("from fastapi import FastAPI\napp = FastAPI()\n")
     return tmp_path
 
 
@@ -31,6 +28,7 @@ def empty_project(tmp_path: Path) -> Path:
 
 
 # ---------- detect_json shape ----------
+
 
 def test_detect_json_fastapi(fastapi_project: Path):
     result = detect_json(fastapi_project)
@@ -61,6 +59,7 @@ def test_detect_json_unknown(empty_project: Path):
 
 # ---------- legacy detect() compat (used by --write) ----------
 
+
 def test_detect_legacy_fastapi_returns_full_dict(fastapi_project: Path):
     """The pre-existing detect() API must keep working for --write."""
     spec = detect(fastapi_project)
@@ -76,9 +75,12 @@ def test_detect_legacy_unknown_returns_none(empty_project: Path):
 
 # ---------- CLI: --json ----------
 
+
 def test_cli_json_fastapi(fastapi_project: Path, capsys: pytest.CaptureFixture):
     import json
+
     from detect_server import _main
+
     rc = _main([str(fastapi_project), "--json"])
     assert rc == 0
     out = capsys.readouterr().out
@@ -90,7 +92,9 @@ def test_cli_json_fastapi(fastapi_project: Path, capsys: pytest.CaptureFixture):
 
 def test_cli_json_unknown(empty_project: Path, capsys: pytest.CaptureFixture):
     import json
+
     from detect_server import _main
+
     rc = _main([str(empty_project), "--json"])
     assert rc == 0  # unknown is not an error in --json mode
     payload = json.loads(capsys.readouterr().out)
@@ -117,8 +121,10 @@ EXHAUSTIVE_PAYLOAD = {
 
 def test_write_from_json_str_round_trip(tmp_path: Path):
     import json
+
     import tomllib
     from detect_server import write_from_json_str  # added in Task 3
+
     write_from_json_str(tmp_path, json.dumps(EXHAUSTIVE_PAYLOAD))
     out = tmp_path / ".humanbound" / "test" / "config.toml"
     assert out.exists()
@@ -137,8 +143,10 @@ def test_cli_write_from_json_via_stdin(tmp_path: Path, monkeypatch, capsys):
     """The CLI reads JSON from stdin (so the skill can pipe it via shell)."""
     import io
     import json
+
     import tomllib
     from detect_server import _main
+
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(EXHAUSTIVE_PAYLOAD)))
     rc = _main([str(tmp_path), "--write-from-json"])
     assert rc == 0
@@ -148,11 +156,11 @@ def test_cli_write_from_json_via_stdin(tmp_path: Path, monkeypatch, capsys):
     assert parsed["server"]["port"] == 9000
 
 
-def test_cli_write_from_json_invalid_json_returns_error(
-    tmp_path: Path, monkeypatch, capsys
-):
+def test_cli_write_from_json_invalid_json_returns_error(tmp_path: Path, monkeypatch, capsys):
     import io
+
     from detect_server import _main
+
     monkeypatch.setattr("sys.stdin", io.StringIO("not json"))
     rc = _main([str(tmp_path), "--write-from-json"])
     assert rc == 4  # JSONDecodeError → exit 4
@@ -160,13 +168,13 @@ def test_cli_write_from_json_invalid_json_returns_error(
     assert "json" in err.lower() or "decode" in err.lower()
 
 
-def test_cli_write_from_json_non_dict_top_level_returns_5(
-    tmp_path: Path, monkeypatch, capsys
-):
+def test_cli_write_from_json_non_dict_top_level_returns_5(tmp_path: Path, monkeypatch, capsys):
     """A JSON list (not a dict) should hit the explicit isinstance check → rc 5."""
     import io
     import json
+
     from detect_server import _main
+
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps([1, 2, 3])))
     rc = _main([str(tmp_path), "--write-from-json"])
     assert rc == 5  # ValueError ("expected a JSON object at the top level") → exit 5
@@ -175,6 +183,7 @@ def test_cli_write_from_json_non_dict_top_level_returns_5(
 
 
 # ── New tests for the extended schema (humanbound-test additions) ─────────────
+
 
 def test_fastapi_does_not_emit_agent_section(tmp_path: Path):
     """Agent endpoint configuration was moved to bot-config.json (user-authored).

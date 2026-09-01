@@ -1,10 +1,13 @@
 """pytest conftest — make detect-server.py importable as `detect_server`."""
-import sys
+
 import importlib.util
+import sys
 from pathlib import Path
 
 # Locate detect-server.py
-SCRIPT_DIR = Path(__file__).resolve().parents[1].parent / "skills" / "tunneling-local-agent" / "scripts"
+SCRIPT_DIR = (
+    Path(__file__).resolve().parents[1].parent / "skills" / "tunneling-local-agent" / "scripts"
+)
 sys.path.insert(0, str(SCRIPT_DIR))
 
 # Hyphenated filename — alias as detect_server module.

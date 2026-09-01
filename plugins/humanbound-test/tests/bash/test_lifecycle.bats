@@ -5,7 +5,7 @@ PLUGIN="${BATS_TEST_DIRNAME}/../.."
 
 setup() {
   TMP="$(mktemp -d)"
-  cd "$TMP"
+  cd "$TMP" || exit 1
 }
 
 teardown() {

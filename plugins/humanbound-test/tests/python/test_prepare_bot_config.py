@@ -1,4 +1,5 @@
 """Tests for prepare-bot-config.py."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -17,6 +18,7 @@ spec.loader.exec_module(mod)
 
 # ── prepare: template branch ────────────────────────────────────────────────
 
+
 def test_prepare_writes_template_when_missing(tmp_path: Path):
     status = mod.prepare(tmp_path, "https://abc-123.ngrok-free.app")
     assert status == "template_created"
@@ -32,27 +34,32 @@ def test_prepare_writes_template_when_missing(tmp_path: Path):
     assert data["thread_init"]["endpoint"].startswith("https://abc-123.ngrok-free.app/")
     assert "<your-thread-path>" in data["thread_init"]["endpoint"]
     assert data["thread_auth"]["endpoint"] == ""  # empty by default (only fill for OAuth)
-    assert data["telemetry"] == {}                  # empty by default (only fill for whitebox)
+    assert data["telemetry"] == {}  # empty by default (only fill for whitebox)
 
 
 # ── prepare: refresh branch ─────────────────────────────────────────────────
 
+
 def test_prepare_refreshes_ngrok_url_when_file_exists(tmp_path: Path):
     out = tmp_path / ".humanbound" / "test" / "bot-config.json"
     out.parent.mkdir(parents=True)
-    out.write_text(json.dumps({
-        "streaming": False,
-        "chat_completion": {
-            "endpoint": "https://OLD-host.ngrok-free.app/chat",
-            "headers": {"x-api-key": "sk-test-token"},
-            "payload": {"message": "$PROMPT"},
-        },
-        "thread_init": {
-            "endpoint": "https://OLD-host.ngrok-free.app/sessions",
-            "headers": {},
-            "payload": {"customer_id": "CUST-001"},
-        },
-    }))
+    out.write_text(
+        json.dumps(
+            {
+                "streaming": False,
+                "chat_completion": {
+                    "endpoint": "https://OLD-host.ngrok-free.app/chat",
+                    "headers": {"x-api-key": "sk-test-token"},
+                    "payload": {"message": "$PROMPT"},
+                },
+                "thread_init": {
+                    "endpoint": "https://OLD-host.ngrok-free.app/sessions",
+                    "headers": {},
+                    "payload": {"customer_id": "CUST-001"},
+                },
+            }
+        )
+    )
 
     status = mod.prepare(tmp_path, "https://new-host.ngrok-free.app")
     assert status == "ngrok_refreshed"
@@ -71,11 +78,15 @@ def test_prepare_handles_all_three_ngrok_tlds(tmp_path: Path):
     """ngrok-free.app, ngrok.app, ngrok.io should all be replaced."""
     out = tmp_path / ".humanbound" / "test" / "bot-config.json"
     out.parent.mkdir(parents=True)
-    out.write_text(json.dumps({
-        "chat_completion": {"endpoint": "https://old.ngrok.io/chat"},
-        "thread_init":     {"endpoint": "https://old.ngrok.app/sessions"},
-        "thread_auth":     {"endpoint": "https://old.ngrok-free.app/oauth/token"},
-    }))
+    out.write_text(
+        json.dumps(
+            {
+                "chat_completion": {"endpoint": "https://old.ngrok.io/chat"},
+                "thread_init": {"endpoint": "https://old.ngrok.app/sessions"},
+                "thread_auth": {"endpoint": "https://old.ngrok-free.app/oauth/token"},
+            }
+        )
+    )
     mod.prepare(tmp_path, "https://new.ngrok-free.app")
     data = json.loads(out.read_text())
     assert data["chat_completion"]["endpoint"] == "https://new.ngrok-free.app/chat"
@@ -94,23 +105,29 @@ def test_prepare_rejects_non_ngrok_url(tmp_path: Path):
 
 # ── validate: happy path ────────────────────────────────────────────────────
 
+
 def test_validate_passes_on_well_formed_config(tmp_path: Path):
     out = tmp_path / ".humanbound" / "test" / "bot-config.json"
     out.parent.mkdir(parents=True)
-    out.write_text(json.dumps({
-        "streaming": False,
-        "chat_completion": {
-            "endpoint": "https://abc.ngrok-free.app/chat",
-            "headers": {"x-api-key": "sk-test"},
-            "payload": {"message": "$PROMPT"},
-        },
-    }))
+    out.write_text(
+        json.dumps(
+            {
+                "streaming": False,
+                "chat_completion": {
+                    "endpoint": "https://abc.ngrok-free.app/chat",
+                    "headers": {"x-api-key": "sk-test"},
+                    "payload": {"message": "$PROMPT"},
+                },
+            }
+        )
+    )
     ok, msg = mod.validate(tmp_path)
     assert ok, msg
     assert msg == "ready"
 
 
 # ── validate: failure cases ─────────────────────────────────────────────────
+
 
 def test_validate_fails_on_missing_file(tmp_path: Path):
     ok, msg = mod.validate(tmp_path)
@@ -130,12 +147,16 @@ def test_validate_fails_on_invalid_json(tmp_path: Path):
 def test_validate_fails_on_placeholder_path(tmp_path: Path):
     out = tmp_path / ".humanbound" / "test" / "bot-config.json"
     out.parent.mkdir(parents=True)
-    out.write_text(json.dumps({
-        "chat_completion": {
-            "endpoint": "https://abc.ngrok-free.app/<your-chat-path>",
-            "payload": {"message": "$PROMPT"},
-        },
-    }))
+    out.write_text(
+        json.dumps(
+            {
+                "chat_completion": {
+                    "endpoint": "https://abc.ngrok-free.app/<your-chat-path>",
+                    "payload": {"message": "$PROMPT"},
+                },
+            }
+        )
+    )
     ok, msg = mod.validate(tmp_path)
     assert not ok
     assert "placeholder" in msg.lower()
@@ -144,12 +165,16 @@ def test_validate_fails_on_placeholder_path(tmp_path: Path):
 def test_validate_fails_on_missing_prompt_placeholder(tmp_path: Path):
     out = tmp_path / ".humanbound" / "test" / "bot-config.json"
     out.parent.mkdir(parents=True)
-    out.write_text(json.dumps({
-        "chat_completion": {
-            "endpoint": "https://abc.ngrok-free.app/chat",
-            "payload": {"message": "hello"},  # no $PROMPT
-        },
-    }))
+    out.write_text(
+        json.dumps(
+            {
+                "chat_completion": {
+                    "endpoint": "https://abc.ngrok-free.app/chat",
+                    "payload": {"message": "hello"},  # no $PROMPT
+                },
+            }
+        )
+    )
     ok, msg = mod.validate(tmp_path)
     assert not ok
     assert "$PROMPT" in msg
@@ -158,12 +183,16 @@ def test_validate_fails_on_missing_prompt_placeholder(tmp_path: Path):
 def test_validate_fails_on_localhost_endpoint(tmp_path: Path):
     out = tmp_path / ".humanbound" / "test" / "bot-config.json"
     out.parent.mkdir(parents=True)
-    out.write_text(json.dumps({
-        "chat_completion": {
-            "endpoint": "http://localhost:8000/chat",
-            "payload": {"message": "$PROMPT"},
-        },
-    }))
+    out.write_text(
+        json.dumps(
+            {
+                "chat_completion": {
+                    "endpoint": "http://localhost:8000/chat",
+                    "payload": {"message": "$PROMPT"},
+                },
+            }
+        )
+    )
     ok, msg = mod.validate(tmp_path)
     assert not ok
     assert "localhost" in msg.lower()
@@ -172,12 +201,16 @@ def test_validate_fails_on_localhost_endpoint(tmp_path: Path):
 def test_validate_fails_on_empty_payload(tmp_path: Path):
     out = tmp_path / ".humanbound" / "test" / "bot-config.json"
     out.parent.mkdir(parents=True)
-    out.write_text(json.dumps({
-        "chat_completion": {
-            "endpoint": "https://abc.ngrok-free.app/chat",
-            "payload": {},
-        },
-    }))
+    out.write_text(
+        json.dumps(
+            {
+                "chat_completion": {
+                    "endpoint": "https://abc.ngrok-free.app/chat",
+                    "payload": {},
+                },
+            }
+        )
+    )
     ok, msg = mod.validate(tmp_path)
     assert not ok
     assert "payload" in msg.lower()

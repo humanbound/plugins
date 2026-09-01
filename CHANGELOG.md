@@ -44,6 +44,12 @@ and each plugin adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 ### Added
 - `NOTICE` file per Apache-2.0 section 4(d).
 
+### Security
+- Pinned every GitHub Action used in the workflows to a full commit SHA
+  (with a version comment), so a moved tag cannot inject code between
+  Dependabot updates. No action changed version: each SHA is what its tag
+  resolved to at the time of the change.
+
 ## [humanbound-test 0.1.0] — 2026-05-12
 
 ### Added

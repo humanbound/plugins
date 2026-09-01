@@ -66,4 +66,3 @@ Critical guards (from `validate_endpoint`):
 - ❌ Never inherited — collect every run if not default-acceptable: `test_category`, `testing_level`, `lang`, `name`, `description`, `context`.
 
 **Conflict detector (409):** if an experiment with the same `project_id + test_category + lang` is already running (status ∈ Created/Generating/Generated/Running/Completed/Analysing), the backend returns 409. Surface the existing experiment id and offer to resume polling instead of creating a duplicate.
-

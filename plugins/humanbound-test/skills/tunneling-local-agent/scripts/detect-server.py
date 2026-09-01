@@ -7,18 +7,20 @@ Usage (CLI):
     python3 detect-server.py <project-dir> --json             # emit {framework, detected, unknown} JSON
     python3 detect-server.py <project-dir> --write-from-json  # read flat-dotted JSON dict from stdin, write TOML
 """
+
 from __future__ import annotations
 
 import argparse
 import json
 import re
 import sys
-import tomllib
 from pathlib import Path
 from typing import Any
 
+import tomllib
 
 # --- public API -------------------------------------------------------------
+
 
 def detect(project: Path) -> dict[str, Any] | None:
     """Legacy: full nested dict (with hardcoded defaults for unknowns), or None.
@@ -113,6 +115,7 @@ def _build_unknown_parts() -> tuple[dict[str, Any], list[str]]:
 
 # --- conversion helpers -----------------------------------------------------
 
+
 def _to_legacy_dict(detected: dict[str, Any], unknown: list[str]) -> dict[str, Any]:
     """Reconstruct the nested dict shape the old detect() returned.
 
@@ -144,6 +147,7 @@ def _expand_dotted(flat: dict[str, Any]) -> dict[str, Any]:
 
 # --- detection helpers ------------------------------------------------------
 
+
 def _is_fastapi(project: Path) -> bool:
     pyproject = project / "pyproject.toml"
     if pyproject.exists():
@@ -166,11 +170,11 @@ def _is_fastapi(project: Path) -> bool:
 
 def _find_fastapi_entry_point(project: Path) -> str | None:
     candidates = [
-        ("main.py",        "main:app"),
-        ("app.py",         "app:app"),
-        ("app/main.py",    "app.main:app"),
-        ("src/main.py",    "src.main:app"),
-        ("src/app.py",     "src.app:app"),
+        ("main.py", "main:app"),
+        ("app.py", "app:app"),
+        ("app/main.py", "app.main:app"),
+        ("src/main.py", "src.main:app"),
+        ("src/app.py", "src.app:app"),
     ]
     for rel, dotted in candidates:
         f = project / rel
@@ -193,6 +197,7 @@ def _detect_package_mgr(project: Path) -> str:
 
 # --- TOML rendering --------------------------------------------------------
 
+
 def _render_toml(spec: dict[str, Any]) -> str:
     """Tiny hand-rolled writer (Python stdlib has no tomllib writer)."""
     lines: list[str] = []
@@ -205,7 +210,7 @@ def _render_toml(spec: dict[str, Any]) -> str:
             return "true" if v else "false"
         if isinstance(v, (int, float)):
             return str(v)
-        return f"\"{v}\""
+        return f'"{v}"'
 
     def emit_table(name: str, table: dict[str, Any]):
         lines.append(f"[{name}]")
@@ -229,16 +234,27 @@ def _render_toml(spec: dict[str, Any]) -> str:
 
 # --- CLI -------------------------------------------------------------------
 
+
 def _main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("project", type=Path)
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("--write", action="store_true",
-                       help="write detected config to <project>/.humanbound/test/config.toml")
-    group.add_argument("--json", dest="emit_json", action="store_true",
-                       help="emit {framework, detected, unknown} JSON to stdout")
-    group.add_argument("--write-from-json", action="store_true",
-                       help="read flat-dotted JSON dict from stdin and write TOML")
+    group.add_argument(
+        "--write",
+        action="store_true",
+        help="write detected config to <project>/.humanbound/test/config.toml",
+    )
+    group.add_argument(
+        "--json",
+        dest="emit_json",
+        action="store_true",
+        help="emit {framework, detected, unknown} JSON to stdout",
+    )
+    group.add_argument(
+        "--write-from-json",
+        action="store_true",
+        help="read flat-dotted JSON dict from stdin and write TOML",
+    )
     args = parser.parse_args(argv)
 
     if args.emit_json:

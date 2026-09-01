@@ -28,6 +28,7 @@ Exit 0 if ready, non-zero with a clear error message otherwise.
 SPDX-License-Identifier: Apache-2.0
 Copyright (c) 2024-2026 Humanbound
 """
+
 from __future__ import annotations
 
 import argparse
@@ -38,9 +39,7 @@ from pathlib import Path
 from typing import Any
 
 # Match the HOST portion of a ngrok URL — paths after the host are NOT matched.
-NGROK_HOST_RE = re.compile(
-    r"https?://[a-zA-Z0-9\-]+\.(?:ngrok-free\.app|ngrok\.app|ngrok\.io)"
-)
+NGROK_HOST_RE = re.compile(r"https?://[a-zA-Z0-9\-]+\.(?:ngrok-free\.app|ngrok\.app|ngrok\.io)")
 
 LOCALHOST_PATTERNS = ("localhost", "127.0.0.1", "0.0.0.0", "::1")
 
@@ -50,6 +49,7 @@ AGENT_SECTIONS = ("chat_completion", "thread_init", "thread_auth")
 
 
 # ── public API ──────────────────────────────────────────────────────────────
+
 
 def config_path(project: Path) -> Path:
     return Path(project) / ".humanbound" / "test" / "bot-config.json"
@@ -145,7 +145,7 @@ def validate(project: Path) -> tuple[bool, str]:
     if not isinstance(payload, dict) or not payload:
         return False, (
             "chat_completion.payload is empty; the agent needs a request body "
-            "shape (e.g., {\"message\": \"$PROMPT\"})"
+            'shape (e.g., {"message": "$PROMPT"})'
         )
     if "$PROMPT" not in json.dumps(payload):
         return False, (
@@ -157,6 +157,7 @@ def validate(project: Path) -> tuple[bool, str]:
 
 
 # ── CLI ─────────────────────────────────────────────────────────────────────
+
 
 def _main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
